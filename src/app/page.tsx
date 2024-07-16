@@ -1,95 +1,109 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect } from 'react';
+import styles from './page.module.css';
+
+const punches = [
+  'jab', 
+  'cross', 
+  'left hook head', 
+  'left hook body', 
+  'lead uppercut', 
+  'rear uppercut'
+];
+
+const Home: React.FC = () => {
+  const [rounds, setRounds] = useState(3);
+  const [duration, setDuration] = useState(180); // duration in seconds
+  const [breakTime, setBreakTime] = useState(60); // break time in seconds
+  const [currentRound, setCurrentRound] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(duration);
+  const [combo, setCombo] = useState('');
+  const [selectedPunches, setSelectedPunches] = useState<string[]>([]);
+
+  const startSession = () => {
+    setCurrentRound(1);
+    setTimeLeft(duration);
+    generateCombo();
+  };
+
+  const generateCombo = () => {
+    const comboLength = Math.floor(Math.random() * 4) + 2; // combo length between 2 and 5
+    const combo = Array.from({ length: comboLength }, () => {
+      const randomIndex = Math.floor(Math.random() * selectedPunches.length);
+      return selectedPunches[randomIndex];
+    }).join(', ');
+    setCombo(combo);
+  };
+
+  useEffect(() => {
+    if (currentRound > 0 && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft(timeLeft - 1);
+        if (timeLeft % 10 === 0) { // Random interval logic
+          generateCombo();
+        }
+      }, 1000);
+      return () => clearInterval(timer);
+    } else if (currentRound > 0 && timeLeft === 0) {
+      if (currentRound < rounds) {
+        setCurrentRound(currentRound + 1);
+        setTimeLeft(breakTime);
+      } else {
+        setCurrentRound(0); // session complete
+      }
+    }
+  }, [currentRound, timeLeft]);
+
+  const handlePunchSelection = (punch: string) => {
+    setSelectedPunches(prev => 
+      prev.includes(punch) 
+        ? prev.filter(p => p !== punch) 
+        : [...prev, punch]
+    );
+  };
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <div className={styles.container}>
+      <h1 className={styles.heading1}>Kickboxing Tool</h1>
+      <div className={styles.form}>
+        <label className={styles.label}>Rounds: </label>
+        <input type="number" value={rounds} onChange={(e) => setRounds(+e.target.value)} className={styles.inputNumber} />
+      </div>
+      <div className={styles.form}>
+        <label className={styles.label}>Duration per Round (seconds): </label>
+        <input type="number" value={duration} onChange={(e) => setDuration(+e.target.value)} className={styles.inputNumber} />
+      </div>
+      <div className={styles.form}>
+        <label className={styles.label}>Break between Rounds (seconds): </label>
+        <input type="number" value={breakTime} onChange={(e) => setBreakTime(+e.target.value)} className={styles.inputNumber} />
+      </div>
+      <div className={styles.form}>
+        <label className={styles.label}>Select Punches to Include: </label>
+        {punches.map(punch => (
+          <div key={punch}>
+            <input
+              type="checkbox"
+              id={punch}
+              value={punch}
+              checked={selectedPunches.includes(punch)}
+              onChange={() => handlePunchSelection(punch)}
+              className={styles.checkbox}
             />
-          </a>
+            <label htmlFor={punch}>{punch}</label>
+          </div>
+        ))}
+      </div>
+      <button onClick={startSession} className={styles.button}>Start</button>
+      {currentRound > 0 && (
+        <div>
+          <h2 className={styles.heading2}>Round: {currentRound}</h2>
+          <h3 className={styles.heading3}>Time Left: {timeLeft}</h3>
+          <h3 className={styles.heading3}>Combo: {combo}</h3>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      )}
+    </div>
   );
-}
+};
+
+export default Home;
