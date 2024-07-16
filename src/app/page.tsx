@@ -3,14 +3,73 @@
 import React, { useState, useEffect } from 'react';
 import styles from './page.module.css';
 
-const punches = [
-  'jab', 
-  'cross', 
-  'left hook head', 
-  'left hook body', 
-  'lead uppercut', 
-  'rear uppercut'
-];
+
+
+const straights: string[] = [
+  "jab",
+  "cross"
+]
+const left_punches: string[] = [
+  "jab",
+  "jab body",
+
+
+  "left hook",
+  "left hook body",
+
+  "left uppercut",
+]
+
+
+const right_punches: string[] = [
+  "cross",
+  "cross body",
+
+
+  "right uppercut",
+]
+
+interface Checks {
+  [key: string]: string[];
+}
+
+const checks: Checks = {
+  'check leg kick': [...left_punches, ...right_punches],
+  'block left body kick': left_punches,
+  'block right body kick': right_punches,
+  'slip left': left_punches,
+  'slip right': right_punches,
+  'perry jab': [...left_punches, ...right_punches],
+  'perry front teep': right_punches,
+  'perry back teep': left_punches,
+};
+
+
+const kicks: string[] = [
+  'left low kick',
+  'right low kick',
+
+  'right mid kick',
+  'left step mid kick',
+  'left switch mid kick',
+
+  'right head kick',
+  'left step head kick',
+  'left switch head kick',  
+
+  'left teep',
+  'right teep',
+
+  'side kick',
+  'back kick',
+
+  'right knee',
+  'left step knee',
+  'left switch knee'
+
+]
+
+
 
 const Home: React.FC = () => {
   const [rounds, setRounds] = useState(3);
@@ -27,16 +86,85 @@ const Home: React.FC = () => {
     generateCombo();
   };
 
+  function getRandomKey<T>(obj: { [key: string]: T }): string {
+    const keys = Object.keys(obj);
+    const randomIndex = Math.floor(Math.random() * keys.length);
+    return keys[randomIndex];
+  }
+  
+  // Function to select a random element from an array
+  function getRandomElement<T>(arr: T[]): T {
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    return arr[randomIndex];
+  }
+
+  function getRandomOneOrZero(): number {
+    return Math.floor(Math.random() * 2);
+  }  
+  function getRandomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }  
   const generateCombo = () => {
-    const comboLength = Math.floor(Math.random() * 4) + 2; // combo length between 2 and 5
-    const combo = Array.from({ length: comboLength }, () => {
-      const randomIndex = Math.floor(Math.random() * selectedPunches.length);
-      return selectedPunches[randomIndex];
-    }).join(', ');
-    setCombo(combo);
+    let combo: string[] = [];
+
+    if (getRandomOneOrZero()){
+      combo.push(getRandomElement(straights))
+    } else {
+      let check: string = getRandomKey(checks)
+      combo.push(check);
+      combo.push(getRandomElement(checks[check]));
+
+    }
+    const punch_selection = [left_punches, right_punches]
+    let current_index: number;
+    if (left_punches.includes(combo[combo.length - 1])){
+      current_index = 1;
+    } else if (right_punches.includes(combo[combo.length - 1])){
+      current_index = 0;
+    } else {
+      current_index= getRandomOneOrZero()
+    }
+    for (let i = 0; i < getRandomInt(0, 1); i++){
+
+      combo.push(getRandomElement(punch_selection[current_index]))
+      current_index = (current_index + 1) % 2
+    }
+
+    combo.push(getRandomElement(kicks))    
+    setCombo(combo.join(', '));
   };
 
   useEffect(() => {
+    for (let i = 0; i < 100; i++){
+      let combo: string[] = [];
+
+      if (getRandomOneOrZero()){
+        combo.push(getRandomElement(straights))
+      } else {
+        let check: string = getRandomKey(checks)
+        combo.push(check);
+        combo.push(getRandomElement(checks[check]));
+  
+      }
+      const punch_selection = [left_punches, right_punches]
+      let current_index: number;
+      if (left_punches.includes(combo[combo.length - 1])){
+        current_index = 1;
+      } else if (right_punches.includes(combo[combo.length - 1])){
+        current_index = 0;
+      } else {
+        current_index= getRandomOneOrZero()
+      }
+      for (let i = 0; i < getRandomInt(0, 1); i++){
+  
+        combo.push(getRandomElement(punch_selection[current_index]))
+        current_index = (current_index + 1) % 2
+      }
+  
+      combo.push(getRandomElement(kicks))    
+
+      console.log(combo)
+    }
     if (currentRound > 0 && timeLeft > 0) {
       const timer = setInterval(() => {
         setTimeLeft(timeLeft - 1);
@@ -55,13 +183,14 @@ const Home: React.FC = () => {
     }
   }, [currentRound, timeLeft]);
 
-  const handlePunchSelection = (punch: string) => {
-    setSelectedPunches(prev => 
-      prev.includes(punch) 
-        ? prev.filter(p => p !== punch) 
-        : [...prev, punch]
-    );
-  };
+  // const handlePunchSelection = (punch: string) => {
+  //   setSelectedPunches(prev => 
+  //     prev.includes(punch) 
+  //       ? prev.filter(p => p !== punch) 
+  //       : [...prev, punch]
+  //   );
+  // };
+
 
   return (
     <div className={styles.container}>
@@ -80,7 +209,7 @@ const Home: React.FC = () => {
       </div>
       <div className={styles.form}>
         <label className={styles.label}>Select Punches to Include: </label>
-        {punches.map(punch => (
+        {/* {punches.map(punch => (
           <div key={punch}>
             <input
               type="checkbox"
@@ -92,7 +221,7 @@ const Home: React.FC = () => {
             />
             <label htmlFor={punch}>{punch}</label>
           </div>
-        ))}
+        ))} */}
       </div>
       <button onClick={startSession} className={styles.button}>Start</button>
       {currentRound > 0 && (
