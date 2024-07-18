@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+<<<<<<< HEAD
+=======
+
+
+.env
+
+>>>>>>> a25ccd7 (fixed security flaw)

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './page.module.css';
 
+<<<<<<< HEAD
 
 
 const straights: string[] = [
@@ -28,12 +29,18 @@ const right_punches: string[] = [
 
   "right uppercut",
 ]
+=======
+const straights: string[] = ["1", "2"];
+const left_punches: string[] = ["1", "1 body", "3", "5"];
+const right_punches: string[] = ["2", "2 body", "6"];
+>>>>>>> a25ccd7 (fixed security flaw)
 
 interface Checks {
   [key: string]: string[];
 }
 
 const checks: Checks = {
+<<<<<<< HEAD
   'check leg kick': [...left_punches, ...right_punches],
   'block left body kick': left_punches,
   'block right body kick': right_punches,
@@ -48,6 +55,29 @@ const checks: Checks = {
 const kicks: string[] = [
   'left low kick',
   'right low kick',
+=======
+  'check leg kick': [...left_punches, ...right_punches, "left low kick", "right low kick"],
+  'slip left': left_punches,
+  'slip right': right_punches,
+  'perry jab': [...left_punches, ...right_punches],
+};
+
+const left_kicks: string[] = [
+  "left low kick",
+  "left mid kick",
+  "left high kick",
+  "left teep",
+  "left knee"
+];
+
+const right_kicks: string[] = [
+  "right low kick",
+  "right mid kick",
+  "right high kick",
+  "right teep",
+  "right knee"
+];
+>>>>>>> a25ccd7 (fixed security flaw)
 
   'right mid kick',
   'left step mid kick',
@@ -63,6 +93,7 @@ const kicks: string[] = [
   'side kick',
   'back kick',
 
+<<<<<<< HEAD
   'right knee',
   'left step knee',
   'left switch knee'
@@ -84,6 +115,67 @@ const Home: React.FC = () => {
     setCurrentRound(1);
     setTimeLeft(duration);
     generateCombo();
+=======
+const generateCombos = (): string => {
+  let combo: string[] = [];
+
+  if (getRandomOneOrZero()) {
+    combo.push(getRandomElement(straights));
+  } else {
+    const check: string = getRandomKey(checks);
+    combo.push(check);
+    combo.push(getRandomElement(checks[check]));
+  }
+
+  const punch_selection = [left_punches, right_punches];
+  let current_index: number;
+  if (left_punches.includes(combo[combo.length - 1])) {
+    current_index = 1;
+  } else if (right_punches.includes(combo[combo.length - 1])) {
+    current_index = 0;
+  } else {
+    current_index = getRandomOneOrZero();
+  }
+
+  for (let i = 0; i < getRandomInt(0, 3); i++) {
+    combo.push(getRandomElement(punch_selection[current_index]));
+    current_index = (current_index + 1) % 2;
+  }
+
+  if (current_index === 1) {
+    combo.push(getRandomElement(right_kicks));
+  } else {
+    combo.push(getRandomElement(left_kicks));
+  }
+
+  return combo.join(', ');
+};
+
+const sleep = (ms: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+const TextToSpeech: React.FC = () => {
+  const [text, setText] = useState<string>('');
+
+  const handleClick = async () => {
+    try {
+      for (let i = 0; i < 100; i++) {
+        let combo = generateCombos();
+        console.log(combo);
+        const audioUrl = await getSpeech(combo, 'x-fast');
+        const audio = new Audio(audioUrl);
+
+        for (let j = 0; j < 3; j++) {
+          audio.play();
+          await sleep(5000);
+        }
+        await sleep(2000);
+      }
+    } catch (error) {
+      console.error('Error synthesizing speech:', error);
+    }
+>>>>>>> a25ccd7 (fixed security flaw)
   };
 
   function getRandomKey<T>(obj: { [key: string]: T }): string {
