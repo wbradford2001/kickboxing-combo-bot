@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { getSpeech } from './polly'; // Import the Polly function
 
 const straights: string[] = ["1", "2"];
-const left_punches: string[] = ["1", "1 body", "3", "5"];
-const right_punches: string[] = ["2", "2 body", "6"];
+const left_punches: string[] = ["1","3", "5"];
+const right_punches: string[] = ["2","6"];
 
 interface Checks {
   [key: string]: string[];
@@ -21,17 +21,22 @@ const checks: Checks = {
 const left_kicks: string[] = [
   "left low kick",
   "left mid kick",
-  "left high kick",
-  "left teep",
-  "left knee"
+  "right low kick",
 ];
 
 const right_kicks: string[] = [
   "right low kick",
   "right mid kick",
-  "right high kick",
-  "right teep",
-  "right knee"
+];
+
+const one_offs: string[] = [
+  "right low kick",
+  "side kick",
+  "back kick",
+  "front teep",
+  "back teep",
+  "left head kick",
+  "right head kick",
 ];
 
 const getRandomKey = <T,>(obj: { [key: string]: T }): string => {
@@ -52,6 +57,14 @@ const getRandomInt = (min: number, max: number): number =>
 
 const generateCombos = (): string => {
   let combo: string[] = [];
+  if (!getRandomInt(0, 5)){
+    combo.push(getRandomElement(one_offs));
+    if (getRandomOneOrZero() && (combo[combo.length - 1] != "back kick")){
+      combo.push(getRandomElement(one_offs))
+    };
+
+    return combo.join(', ');;
+  }
 
   if (getRandomOneOrZero()) {
     combo.push(getRandomElement(straights));
@@ -94,17 +107,20 @@ const TextToSpeech: React.FC = () => {
 
   const handleClick = async () => {
     try {
-      for (let i = 0; i < 100; i++) {
+      for (let i = 1; i < 51; i++) {
         let combo = generateCombos();
-        console.log(combo);
-        const audioUrl = await getSpeech(combo, 'x-fast');
-        const audio = new Audio(audioUrl);
-
-        for (let j = 0; j < 3; j++) {
-          audio.play();
-          await sleep(5000);
+        console.log(i, combo);
+        if (i % 5 == 0){
+          console.log("")
         }
-        await sleep(2000);
+        //const audioUrl = await getSpeech(combo, 'x-fast');
+        //const audio = new Audio(audioUrl);
+
+        //for (let j = 0; j < 3; j++) {
+          //audio.play();
+          //await sleep(5000);
+        //}
+        //await sleep(2000);
       }
     } catch (error) {
       console.error('Error synthesizing speech:', error);
